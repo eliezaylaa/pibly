@@ -14,11 +14,13 @@ const postRoutes = require("./routes/postRoutes");
 const userRoutes = require("./routes/userRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const invoiceRoutes = require("./routes/invoiceRoutes");
 app.use(cors());
 app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/invoices", invoiceRoutes);
 app.use("/posts", postRoutes);
 app.use("/sessions", sessionRoutes);
 app.use("/payments", paymentRoutes);
