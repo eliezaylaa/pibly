@@ -19,6 +19,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/posts", postRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Pibly API is running!" });
