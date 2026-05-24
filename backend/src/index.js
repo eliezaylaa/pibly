@@ -30,9 +30,15 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected: ", socket.id);
+  console.log("User connected:", socket.id);
+
+  socket.on("join_room", (user_id) => {
+    socket.join(`user_${user_id}`);
+    console.log(`User ${user_id} joined room`);
+  });
+
   socket.on("disconnect", () => {
-    console.log("User disconnected: ", socket.id);
+    console.log("User disconnected:", socket.id);
   });
 });
 const PORT = process.env.PORT || 5000;
