@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 const bcrypt = require("bcrypt");
+const { get } = require("../routes/authRoutes");
 
 const createUser = async (req, res) => {
   if (req.user.role !== "admin")
@@ -48,6 +49,17 @@ const getUser = async (req, res) => {
     );
     if (user.rows.length === 0)
       return res.status(404).json({ error: "User not found" });
+    res.status(200).json(user.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+const getMyProfile = async (req, res) => {
+  try {
+    const user = await pool.query(
+      "SELECT id, name, email, role, avatar_url, bio, phone, address, zip_code, city, country, created_at FROM users WHERE id = $1",
+      [req.user.id],
+    );
     res.status(200).json(user.rows[0]);
   } catch (err) {
     res.status(500).json({ error: "Server error" });
@@ -127,4 +139,5 @@ module.exports = {
   updateUser,
   deleteUser,
   searchUser,
+  getMyProfile,
 };

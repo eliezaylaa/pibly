@@ -7,6 +7,7 @@ const {
   updateUser,
   deleteUser,
   searchUser,
+  getMyProfile,
 } = require("../controllers/userController");
 const { authenticate } = require("../middleware/auth");
 
@@ -14,6 +15,7 @@ router.post("/", authenticate, createUser);
 router.get("/search", authenticate, searchUser);
 router.get("/", authenticate, getAllUsers);
 router.get("/:id", authenticate, getUser);
+router.get("/myprofile", authenticate, getMyProfile);
 router.put("/:id", authenticate, updateUser);
 router.delete("/:id", authenticate, deleteUser);
 

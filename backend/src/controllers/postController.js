@@ -55,6 +55,18 @@ const getPost = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+const getMyPosts = async (req, res) => {
+  const user_id = req.user.id;
+  try {
+    const posts = await pool.query(
+      "SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
+      [user_id],
+    );
+    res.status(200).json(posts.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 const updatePost = async (req, res) => {
   const { id } = req.params;
@@ -99,4 +111,5 @@ module.exports = {
   getPost,
   updatePost,
   deletePost,
+  getMyPosts,
 };
