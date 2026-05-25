@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Image } from "react-native";
 import {
   View,
   Text,
@@ -7,18 +6,23 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../config";
 
-export default function LoginScreen({ navigation }) {
+export default function RegisterScreen({ navigation }) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const login = async () => {
-    if (!email || !password) return Alert.alert("Error", "All fields required");
+
+  const register = async () => {
+    if (!name || !email || !password)
+      return Alert.alert("Error", "All fields required");
     try {
-      const res = await axios.post(`${API_URL}/auth/login`, {
+      const res = await axios.post(`${API_URL}/auth/register`, {
+        name,
         email,
         password,
       });
@@ -27,14 +31,20 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
       navigation.replace("Tabs");
     } catch (err) {
-      Alert.alert("Error", "Login Failed");
+      Alert.alert("Error", "Registration failed");
     }
   };
 
   return (
     <View style={styles.container}>
       <Image source={require("../../assets/pibly.png")} style={styles.logo} />
-
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        placeholderTextColor="#888"
+        value={name}
+        onChangeText={setName}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -51,11 +61,11 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setPassword}
         secureTextEntry={true}
       />
-      <TouchableOpacity style={styles.button} onPress={login}>
-        <Text style={styles.buttonText}>Sign In</Text>
+      <TouchableOpacity style={styles.button} onPress={register}>
+        <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-        <Text style={styles.link}>Don't have an account? Sign Up</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        <Text style={styles.link}>Already have an account? Sign In</Text>
       </TouchableOpacity>
     </View>
   );
@@ -68,25 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
   },
-  title: {
-    fontSize: 48,
-    fontWeight: "bold",
-    color: "#2D6BE4",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  logo: {
-    width: 300,
-    height: 150,
-    marginBottom: 20,
-    alignSelf: "center",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#888",
-    textAlign: "center",
-    marginBottom: 40,
-  },
+  logo: { width: 300, height: 150, marginBottom: 20, alignSelf: "center" },
   input: {
     backgroundColor: "#1A1A1A",
     color: "#fff",
