@@ -15,7 +15,6 @@ import API_URL from "../../config";
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const login = async () => {
     if (!email || !password) return Alert.alert("Error", "All fields required");
     try {
@@ -28,7 +27,7 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
       navigation.replace("Home");
     } catch (err) {
-      Alert.alert("Error", err.response?.data?.error || "Login failed");
+      Alert.alert("Error", "Login Failed");
     }
   };
 
