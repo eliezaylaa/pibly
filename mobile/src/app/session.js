@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { RTCView } from "react-native-webrtc";
+import { WebView } from "react-native-webview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import API_URL from "../../config";
 import { getSocket } from "../socket";
-import { startCall, endCall } from "../webrtc";
 
 export default function SessionScreen({ route, navigation }) {
   const { session, post } = route.params;
   const [duration, setDuration] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
-  const [localStream, setLocalStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
+  const [roomUrl] = useState(`https://meet.jit.si/pibly-session-${session.id}`);
 
   useEffect(() => {
     const timer = setInterval(() => setDuration((prev) => prev + 1), 1000);
@@ -21,11 +19,6 @@ export default function SessionScreen({ route, navigation }) {
       if (userData) {
         const user = JSON.parse(userData);
         setCurrentUser(user);
-        const isCaller = user.id === session.poster_id;
-        const stream = await startCall(session.id, isCaller, (remote) => {
-          setRemoteStream(remote);
-        });
-        setLocalStream(stream);
       }
     };
     loadUser();
@@ -33,13 +26,11 @@ export default function SessionScreen({ route, navigation }) {
     const socket = getSocket();
     if (socket) {
       socket.on("session_ended", () => {
-        endCall();
         navigation.replace("Tabs");
       });
     }
     return () => {
       clearInterval(timer);
-      endCall();
       if (socket) socket.off("session_ended");
     };
   }, []);
@@ -60,7 +51,6 @@ export default function SessionScreen({ route, navigation }) {
         { is_fixed: isFixed },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      endCall();
       if (isFixed) {
         Alert.alert(
           "Problem Fixed!",
@@ -82,32 +72,16 @@ export default function SessionScreen({ route, navigation }) {
       <Text style={styles.title}>{post.title}</Text>
       <Text style={styles.timer}>{formatTime(duration)}</Text>
       <View style={styles.videoPlaceholder}>
-        {remoteStream ? (
-          <RTCView
-            streamURL={remoteStream.toURL()}
-            style={{ width: "100%", height: "100%" }}
-            objectFit="cover"
-          />
-        ) : (
-          <>
-            <Text style={styles.videoText}>📹</Text>
-            <Text style={styles.videoSub}>Connecting...</Text>
-          </>
-        )}
-        {localStream && (
-          <RTCView
-            streamURL={localStream.toURL()}
-            style={{
-              position: "absolute",
-              bottom: 8,
-              right: 8,
-              width: 80,
-              height: 120,
-              borderRadius: 8,
-            }}
-            objectFit="cover"
-          />
-        )}
+        <WebView
+          source={{ uri: roomUrl }}
+          style={{ flex: 1, width: "100%", height: "100%" }}
+          allowsInlineMediaPlayback={true}
+          mediaPlaybackRequiresUserAction={false}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          allowsFullscreenVideo={true}
+          mediaCapturePermissionGrantType="grant"
+        />
       </View>
       <Text style={styles.price}>€{post.price} offered</Text>
       {isPoster && (
