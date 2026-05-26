@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Posts from "./pages/Posts";
+import Sessions from "./pages/Sessions";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<Users />} />
         <Route path="/posts" element={<Posts />} />
+        <Route path="/sessions" element={<Sessions />} />
       </Routes>
     </BrowserRouter>
   );
