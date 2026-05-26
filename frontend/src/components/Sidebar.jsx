@@ -6,7 +6,7 @@ export default function Sidebar() {
 
   const logout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   const isAdmin = user.role === "admin";
