@@ -25,13 +25,18 @@ export default function CreatePostScreen({ navigation }) {
       return Alert.alert("Error", "All fields required");
     try {
       const token = await AsyncStorage.getItem("token");
-      await axios.post(
+      const res = await axios.post(
         `${API_URL}/posts`,
         { title, description, price: parseFloat(price), category },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      Alert.alert("Success", "Post created");
-      navigation.goBack();
+      Alert.alert("Success", "Post created!", [
+        {
+          text: "OK",
+          onPress: () =>
+            navigation.replace("PosterWaiting", { post: res.data }),
+        },
+      ]);
     } catch (err) {
       Alert.alert("Error", "Failed to create post");
     }

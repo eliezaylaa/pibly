@@ -27,7 +27,7 @@ export default function HomeScreen({ navigation }) {
       const socket = getSocket();
       if (socket) {
         socket.on("helper_joined", (data) => {
-          Alert.alert(`${data.helper_name} wants to help you`, [
+          Alert.alert(`${data.helper_name} wants to help you`, null, [
             { text: "Reject", style: "cancel" },
             { text: "Accept", onPress: () => acceptHelper(data.session_id) },
           ]);
@@ -73,7 +73,7 @@ export default function HomeScreen({ navigation }) {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      navigation.navigate("Session", { session: res.data, post });
+      navigation.navigate("HelperWaiting", { session: res.data, post });
     } catch (err) {
       Alert.alert("Error", err.response?.data?.error || "Could not join");
     }
@@ -81,12 +81,15 @@ export default function HomeScreen({ navigation }) {
   const acceptHelper = async (session_id) => {
     try {
       const token = await AsyncStorage.getItem("token");
-      await axios.put(
+      const res = await axios.put(
         `${API_URL}/sessions/${session_id}/accept`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      Alert.alert("Accepted", "Session started");
+      navigation.navigate("Session", {
+        session: res.data,
+        post: { price: res.data.price, title: res.data.title },
+      });
     } catch (err) {
       Alert.alert("Error", "Failed to accept");
     }

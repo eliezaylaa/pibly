@@ -3,14 +3,31 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import API_URL from "../../config";
+import { getSocket } from "../socket";
 
 export default function SessionScreen({ route, navigation }) {
   const { session, post } = route.params;
   const [duration, setDuration] = useState(0);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setDuration((prev) => prev + 1), 1000);
-    return () => clearInterval(timer);
+    const loadUser = async () => {
+      const userData = await AsyncStorage.getItem("user");
+      if (userData) setCurrentUser(JSON.parse(userData));
+    };
+    loadUser();
+
+    const socket = getSocket();
+    if (socket) {
+      socket.on("session_ended", () => {
+        navigation.replace("Tabs");
+      });
+    }
+    return () => {
+      clearInterval(timer);
+      if (socket) socket.off("session_ended");
+    };
   }, []);
 
   const formatTime = (seconds) => {
@@ -31,19 +48,19 @@ export default function SessionScreen({ route, navigation }) {
       );
       if (isFixed) {
         Alert.alert(
-          "Problem Fixed",
-          `Payment of €${post.price} will be processed shortly.`,
+          "Problem Fixed!",
+          `Payment of €${post.price} will be processed.`,
           [{ text: "OK", onPress: () => navigation.replace("Tabs") }],
         );
       } else {
-        Alert.alert("Session Ended", "No payment charged.", [
-          { text: "OK", onPress: () => navigation.replace("Tabs") },
-        ]);
+        navigation.replace("PosterWaiting", { post });
       }
     } catch (err) {
       Alert.alert("Error", "Failed to end session");
     }
   };
+
+  const isPoster = currentUser?.id === session.poster_id;
 
   return (
     <View style={styles.container}>
@@ -54,18 +71,22 @@ export default function SessionScreen({ route, navigation }) {
         <Text style={styles.videoSub}>Video call</Text>
       </View>
       <Text style={styles.price}>€{post.price} offered</Text>
-      <TouchableOpacity
-        style={styles.fixedButton}
-        onPress={() => endSession(true)}
-      >
-        <Text style={styles.buttonText}>Problem Fixed</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.notFixedButton}
-        onPress={() => endSession(false)}
-      >
-        <Text style={styles.buttonText}>Not Fixed</Text>
-      </TouchableOpacity>
+      {isPoster && (
+        <>
+          <TouchableOpacity
+            style={styles.fixedButton}
+            onPress={() => endSession(true)}
+          >
+            <Text style={styles.buttonText}>Problem Fixed</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.notFixedButton}
+            onPress={() => endSession(false)}
+          >
+            <Text style={styles.buttonText}>Not Fixed</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
