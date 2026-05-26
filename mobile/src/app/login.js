@@ -27,6 +27,7 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
       navigation.replace("Tabs");
     } catch (err) {
+      console.log("Login error:", err.response?.data || err.message);
       Alert.alert("Error", "Login Failed");
     }
   };
