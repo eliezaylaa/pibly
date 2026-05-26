@@ -8,6 +8,7 @@ import RegisterScreen from "./src/app/register";
 import ProfileScreen from "./src/app/profile";
 import CreatePostScreen from "./src/app/createPost";
 import PostDetailScreen from "./src/app/postDetail";
+import SessionScreen from "./src/app/session";
 import { StackScreen } from "react-native-screens";
 
 const Stack = createNativeStackNavigator();
@@ -55,6 +56,7 @@ export default function App() {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="CreatePost" component={CreatePostScreen} />
         <Stack.Screen name="PostDetail" component={PostDetailScreen} />
+        <Stack.Screen name="Session" component={SessionScreen} />
         <Stack.Screen name="Tabs" component={TabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>

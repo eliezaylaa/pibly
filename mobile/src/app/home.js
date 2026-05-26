@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../config";
+import { getSocket } from "../socket";
 
 export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
@@ -22,6 +23,20 @@ export default function HomeScreen({ navigation }) {
     useCallback(() => {
       loadUser();
       fetchPosts();
+
+      const socket = getSocket();
+      if (socket) {
+        socket.on("helper_joined", (data) => {
+          Alert.alert(`${data.helper_name} wants to help you`, [
+            { text: "Reject", style: "cancel" },
+            { text: "Accept", onPress: () => acceptHelper(data.session_id) },
+          ]);
+        });
+      }
+
+      return () => {
+        if (socket) socket.off("helper_joined");
+      };
     }, []),
   );
 
@@ -61,6 +76,19 @@ export default function HomeScreen({ navigation }) {
       navigation.navigate("Session", { session: res.data, post });
     } catch (err) {
       Alert.alert("Error", err.response?.data?.error || "Could not join");
+    }
+  };
+  const acceptHelper = async (session_id) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await axios.put(
+        `${API_URL}/sessions/${session_id}/accept`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      Alert.alert("Accepted", "Session started");
+    } catch (err) {
+      Alert.alert("Error", "Failed to accept");
     }
   };
 

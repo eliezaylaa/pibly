@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../config";
+import { connectSocket } from "../socket";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -25,6 +26,7 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem("token", res.data.token);
       await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
       await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+      await connectSocket();
       navigation.replace("Tabs");
     } catch (err) {
       console.log("Login error:", err.response?.data || err.message);
