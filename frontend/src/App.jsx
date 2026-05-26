@@ -5,7 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Posts from "./pages/Posts";
 import Sessions from "./pages/Sessions";
-
+import Transactions from "./pages/Transactions";
 function App() {
   return (
     <BrowserRouter>
@@ -16,6 +16,7 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="/sessions" element={<Sessions />} />
+        <Route path="/transactions" element={<Transactions />} />
       </Routes>
     </BrowserRouter>
   );
