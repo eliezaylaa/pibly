@@ -34,7 +34,15 @@ export default function Dashboard() {
     <div style={styles.page}>
       <Sidebar />
       <div style={styles.content}>
-        <h1 style={styles.title}>Welcome back, {user.name}</h1>
+        <div style={styles.topBar}>
+          <h1 style={styles.title}>Welcome back, {user.name}</h1>
+          <button
+            style={styles.postBtn}
+            onClick={() => navigate("/create-post")}
+          >
+            Post
+          </button>
+        </div>
 
         <div style={styles.searchBar}>
           <input
@@ -115,11 +123,21 @@ export default function Dashboard() {
 const styles = {
   page: { display: "flex", minHeight: "100vh", backgroundColor: "#000" },
   content: { marginLeft: "240px", padding: "40px", flex: 1 },
-  title: {
-    color: "#fff",
-    fontSize: "24px",
-    fontWeight: "bold",
+  topBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: "32px",
+  },
+  title: { color: "#fff", fontSize: "24px", fontWeight: "bold" },
+  postBtn: {
+    padding: "10px 20px",
+    backgroundColor: "#2D6BE4",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
   },
   searchBar: {
     display: "flex",
