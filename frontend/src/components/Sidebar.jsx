@@ -30,6 +30,9 @@ export default function Sidebar() {
         <Link to="/my-invoices" style={styles.link}>
           My Invoices
         </Link>
+        <Link to="/profile" style={styles.link}>
+          My Profile
+        </Link>
         {isAdmin && (
           <>
             <div style={styles.divider} />
