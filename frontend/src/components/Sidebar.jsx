@@ -18,9 +18,6 @@ export default function Sidebar() {
         <Link to="/dashboard" style={styles.link}>
           Dashboard
         </Link>
-        <Link to="/feed" style={styles.link}>
-          Feed
-        </Link>
         <Link to="/my-posts" style={styles.link}>
           My Posts
         </Link>
