@@ -79,7 +79,10 @@ export default function HomeScreen({ navigation }) {
           </View>
           <Text style={styles.title}>{item.title}</Text>
           <View style={styles.cardBottom}>
-            <Text style={styles.poster}>{item.name || "Unknown"}</Text>
+            <Text style={styles.poster}>
+              {item.name || "Unknown"} {"on "}
+              {new Date(item.created_at).toLocaleDateString()}
+            </Text>
             {currentUser?.id !== item.user_id && (
               <TouchableOpacity
                 style={styles.joinButton}
