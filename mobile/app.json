@@ -3,6 +3,15 @@
     "name": "mobile",
     "slug": "mobile",
     "version": "1.0.0",
+    "plugins": [
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.pibly",
+          "enableGooglePay": true
+        }
+      ]
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

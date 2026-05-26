@@ -11,10 +11,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import API_URL from "../../config";
 import { getSocket } from "../socket";
+import { useStripe } from "@stripe/stripe-react-native";
 
 export default function PosterWaitingScreen({ route, navigation }) {
   const { post } = route.params;
   const [helpers, setHelpers] = useState([]);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   useEffect(() => {
     const socket = getSocket();
@@ -31,19 +33,41 @@ export default function PosterWaitingScreen({ route, navigation }) {
   const acceptHelper = async (session_id, helper_id) => {
     try {
       const token = await AsyncStorage.getItem("token");
+
+      const postRes = await axios.get(`${API_URL}/posts/${post.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const amount = parseFloat(postRes.data.price);
+
+      const intentRes = await axios.post(
+        `${API_URL}/payments/create-intent`,
+        { amount },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      await initPaymentSheet({
+        paymentIntentClientSecret: intentRes.data.clientSecret,
+        merchantDisplayName: "Pibly",
+      });
+
+      const { error } = await presentPaymentSheet();
+      if (error) {
+        Alert.alert("Payment cancelled");
+        return;
+      }
+
       const sessionRes = await axios.put(
         `${API_URL}/sessions/${session_id}/accept`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      const postRes = await axios.get(`${API_URL}/posts/${post.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
       navigation.replace("Session", {
         session: sessionRes.data,
         post: postRes.data,
       });
     } catch (err) {
+      console.log("Error accepting helper:", err.response?.data, err.message);
       Alert.alert("Error", "Failed to accept");
     }
   };
@@ -90,7 +114,6 @@ export default function PosterWaitingScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{post.title}</Text>
-
       <View style={styles.pulse} />
       {helpers.length === 0 ? (
         <Text style={styles.empty}>Waiting for someone to join...</Text>

@@ -11,6 +11,8 @@ import PostDetailScreen from "./src/app/postDetail";
 import SessionScreen from "./src/app/session";
 import PosterWaitingScreen from "./src/app/posterWaiting";
 import HelperWaitingScreen from "./src/app/helperWaiting";
+import { StripeProvider } from "@stripe/stripe-react-native";
+import { STRIPE_PUBLISHABLE_KEY } from "./config";
 import { StackScreen } from "react-native-screens";
 
 const Stack = createNativeStackNavigator();
@@ -50,19 +52,24 @@ function TabNavigator() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="CreatePost" component={CreatePostScreen} />
-        <Stack.Screen name="PostDetail" component={PostDetailScreen} />
-        <Stack.Screen name="Session" component={SessionScreen} />
-        <Stack.Screen name="PosterWaiting" component={PosterWaitingScreen} />
-        <Stack.Screen name="HelperWaiting" component={HelperWaitingScreen} />
-        <Stack.Screen name="Tabs" component={TabNavigator} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <StripeProvider
+      publishableKey={STRIPE_PUBLISHABLE_KEY}
+      merchantIdentifier="merchant.com.pibly"
+    >
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+          <Stack.Screen name="PostDetail" component={PostDetailScreen} />
+          <Stack.Screen name="Session" component={SessionScreen} />
+          <Stack.Screen name="PosterWaiting" component={PosterWaitingScreen} />
+          <Stack.Screen name="HelperWaiting" component={HelperWaitingScreen} />
+          <Stack.Screen name="Tabs" component={TabNavigator} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </StripeProvider>
   );
 }
