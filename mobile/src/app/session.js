@@ -1,31 +1,45 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { RTCView } from "react-native-webrtc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import API_URL from "../../config";
 import { getSocket } from "../socket";
+import { startCall, endCall } from "../webrtc";
 
 export default function SessionScreen({ route, navigation }) {
   const { session, post } = route.params;
   const [duration, setDuration] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setDuration((prev) => prev + 1), 1000);
     const loadUser = async () => {
       const userData = await AsyncStorage.getItem("user");
-      if (userData) setCurrentUser(JSON.parse(userData));
+      if (userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+        const isCaller = user.id === session.poster_id;
+        const stream = await startCall(session.id, isCaller, (remote) => {
+          setRemoteStream(remote);
+        });
+        setLocalStream(stream);
+      }
     };
     loadUser();
 
     const socket = getSocket();
     if (socket) {
       socket.on("session_ended", () => {
+        endCall();
         navigation.replace("Tabs");
       });
     }
     return () => {
       clearInterval(timer);
+      endCall();
       if (socket) socket.off("session_ended");
     };
   }, []);
@@ -46,6 +60,7 @@ export default function SessionScreen({ route, navigation }) {
         { is_fixed: isFixed },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      endCall();
       if (isFixed) {
         Alert.alert(
           "Problem Fixed!",
@@ -67,8 +82,32 @@ export default function SessionScreen({ route, navigation }) {
       <Text style={styles.title}>{post.title}</Text>
       <Text style={styles.timer}>{formatTime(duration)}</Text>
       <View style={styles.videoPlaceholder}>
-        <Text style={styles.videoText}>📹</Text>
-        <Text style={styles.videoSub}>Video call</Text>
+        {remoteStream ? (
+          <RTCView
+            streamURL={remoteStream.toURL()}
+            style={{ width: "100%", height: "100%" }}
+            objectFit="cover"
+          />
+        ) : (
+          <>
+            <Text style={styles.videoText}>📹</Text>
+            <Text style={styles.videoSub}>Connecting...</Text>
+          </>
+        )}
+        {localStream && (
+          <RTCView
+            streamURL={localStream.toURL()}
+            style={{
+              position: "absolute",
+              bottom: 8,
+              right: 8,
+              width: 80,
+              height: 120,
+              borderRadius: 8,
+            }}
+            objectFit="cover"
+          />
+        )}
       </View>
       <Text style={styles.price}>€{post.price} offered</Text>
       {isPoster && (
@@ -120,6 +159,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
+    overflow: "hidden",
+    position: "relative",
   },
   videoText: { fontSize: 48 },
   videoSub: { color: "#888", fontSize: 14, marginTop: 8 },
