@@ -12,6 +12,7 @@ import MyPosts from "./pages/MyPosts";
 import MySessions from "./pages/MySessions";
 import MyInvoices from "./pages/MyInvoices";
 import Reports from "./pages/Reports";
+import PostDetail from "./pages/PostDetail";
 function App() {
   return (
     <BrowserRouter>
@@ -29,6 +30,7 @@ function App() {
         <Route path="/my-sessions" element={<MySessions />} />
         <Route path="/my-invoices" element={<MyInvoices />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/post/:id" element={<PostDetail />} />
       </Routes>
     </BrowserRouter>
   );
