@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import {
   View,
   Text,
@@ -16,9 +18,12 @@ export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
-  useEffect(() => {
-    loadUser();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadUser();
+      fetchPosts();
+    }, []),
+  );
 
   const loadUser = async () => {
     const userData = await AsyncStorage.getItem("user");

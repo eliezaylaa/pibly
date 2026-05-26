@@ -6,6 +6,7 @@ import LoginScreen from "./src/app/login";
 import HomeScreen from "./src/app/home";
 import RegisterScreen from "./src/app/register";
 import ProfileScreen from "./src/app/profile";
+import CreatePostScreen from "./src/app/createPost";
 import { StackScreen } from "react-native-screens";
 
 const Stack = createNativeStackNavigator();
@@ -51,6 +52,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="CreatePost" component={CreatePostScreen} />
         <Stack.Screen name="Tabs" component={TabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
