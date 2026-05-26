@@ -13,6 +13,7 @@ import MySessions from "./pages/MySessions";
 import MyInvoices from "./pages/MyInvoices";
 import Reports from "./pages/Reports";
 import PostDetail from "./pages/PostDetail";
+import CreatePost from "./pages/CreatePost";
 function App() {
   return (
     <BrowserRouter>
@@ -31,6 +32,7 @@ function App() {
         <Route path="/my-invoices" element={<MyInvoices />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/post/:id" element={<PostDetail />} />
+        <Route path="/create-post" element={<CreatePost />} />
       </Routes>
     </BrowserRouter>
   );
