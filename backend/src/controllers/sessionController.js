@@ -1,5 +1,5 @@
-const { io } = require("../index");
 const pool = require("../config/db");
+const { getIO } = require("../socket");
 
 const joinSession = async (req, res) => {
   const { post_id } = req.body;
@@ -21,16 +21,18 @@ const joinSession = async (req, res) => {
     const helper = await pool.query("SELECT name FROM users WHERE id = $1", [
       helper_id,
     ]);
-
-    io.to(`user_${post.rows[0].user_id}`).emit("helper_joined", {
-      session_id: session.rows[0].id,
-      helper_id: helper_id,
-      helper_name: helper.rows[0].name,
-      post_id: post_id,
-    });
+    const io = getIO();
+    if (io)
+      io.to(`user_${post.rows[0].user_id}`).emit("helper_joined", {
+        session_id: session.rows[0].id,
+        helper_id: helper_id,
+        helper_name: helper.rows[0].name,
+        post_id: post_id,
+      });
 
     res.status(201).json(session.rows[0]);
   } catch (err) {
+    console.log("Join session error:", err.message);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -77,10 +79,12 @@ const acceptSession = async (req, res) => {
     await pool.query("UPDATE posts SET status = 'in_progress' WHERE id = $1", [
       session.rows[0].post_id,
     ]);
-    io.to(`user_${session.rows[0].helper_id}`).emit("session_accepted", {
-      session_id: id,
-      post_id: session.rows[0].post_id,
-    });
+    const io = getIO();
+    if (io)
+      io.to(`user_${session.rows[0].helper_id}`).emit("session_accepted", {
+        session_id: id,
+        post_id: session.rows[0].post_id,
+      });
 
     res.status(200).json(updated.rows[0]);
   } catch (err) {
@@ -102,6 +106,12 @@ const rejectSession = async (req, res) => {
     await pool.query("UPDATE sessions SET status = 'rejected' WHERE id = $1", [
       id,
     ]);
+    const io = getIO();
+    if (io) {
+      io.to(`user_${session.rows[0].helper_id}`).emit("session_rejected", {
+        session_id: id,
+      });
+    }
     res.status(200).json({ message: "Helper rejected" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
@@ -120,13 +130,38 @@ const endSession = async (req, res) => {
       await pool.query("UPDATE posts SET status = 'completed' WHERE id = $1", [
         session.rows[0].post_id,
       ]);
+      const post = await pool.query("SELECT * FROM posts WHERE id = $1", [
+        session.rows[0].post_id,
+      ]);
+      const amount = parseFloat(post.rows[0].price);
+      const platform_fee = parseFloat((amount * 0.1).toFixed(2));
+      await pool.query(
+        "INSERT INTO transactions (session_id, payer_id, payee_id, amount, platform_fee, status) VALUES ($1, $2, $3, $4, $5, 'completed')",
+        [
+          id,
+          session.rows[0].poster_id,
+          session.rows[0].helper_id,
+          amount,
+          platform_fee,
+        ],
+      );
     } else {
       await pool.query("UPDATE posts SET status = 'active' WHERE id = $1", [
         session.rows[0].post_id,
       ]);
     }
+    const io = getIO();
+    if (io) {
+      io.to(`user_${session.rows[0].poster_id}`).emit("session_ended", {
+        is_fixed,
+      });
+      io.to(`user_${session.rows[0].helper_id}`).emit("session_ended", {
+        is_fixed,
+      });
+    }
     res.status(200).json(session.rows[0]);
   } catch (err) {
+    console.log("End session error:", err.message);
     res.status(500).json({ error: "Server error" });
   }
 };

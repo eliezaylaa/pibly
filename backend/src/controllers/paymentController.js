@@ -2,13 +2,18 @@ const pool = require("../config/db");
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-const createPaymentIntent = async (amount) => {
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(amount * 100),
-    currency: "eur",
-    capture_method: "manual",
-  });
-  return paymentIntent;
+const createPaymentIntent = async (req, res) => {
+  const { amount } = req.body;
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100),
+      currency: "eur",
+      capture_method: "manual",
+    });
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 const capturePaymentIntent = async (paymentIntentId) => {

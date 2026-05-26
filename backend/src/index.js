@@ -9,12 +9,16 @@ require("./config/db");
 const io = socketio(server, {
   cors: { origin: "*" },
 });
+const { setIO } = require("./socket");
+setIO(io);
+
 const authRoutes = require("./routes/authRoutes");
 const postRoutes = require("./routes/postRoutes");
 const userRoutes = require("./routes/userRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
+const reportRoutes = require("./routes/reportRoute");
 app.use(cors());
 app.use(express.json());
 
@@ -24,6 +28,7 @@ app.use("/invoices", invoiceRoutes);
 app.use("/posts", postRoutes);
 app.use("/sessions", sessionRoutes);
 app.use("/payments", paymentRoutes);
+app.use("/reports", reportRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Pibly API is running!" });
@@ -36,7 +41,21 @@ io.on("connection", (socket) => {
     socket.join(`user_${user_id}`);
     console.log(`User ${user_id} joined room`);
   });
+  socket.on("join_session", (sessionId) => {
+    socket.join(`session_${sessionId}`);
+  });
 
+  socket.on("offer", ({ offer, sessionId }) => {
+    socket.to(`session_${sessionId}`).emit("offer", { offer });
+  });
+
+  socket.on("answer", ({ answer, sessionId }) => {
+    socket.to(`session_${sessionId}`).emit("answer", { answer });
+  });
+
+  socket.on("ice-candidate", ({ candidate, sessionId }) => {
+    socket.to(`session_${sessionId}`).emit("ice-candidate", { candidate });
+  });
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });

@@ -56,12 +56,15 @@ const getUser = async (req, res) => {
 };
 const getMyProfile = async (req, res) => {
   try {
+    console.log("Fetching profile for user ID:", req.user.id);
     const user = await pool.query(
       "SELECT id, name, email, role, avatar_url, bio, phone, address, zip_code, city, country, created_at FROM users WHERE id = $1",
       [req.user.id],
     );
+    console.log("User query result:", user.rows[0]);
     res.status(200).json(user.rows[0]);
   } catch (err) {
+    console.log("Error fetching profile:", err.message);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -78,7 +81,7 @@ const updateUser = async (req, res) => {
     city,
     country,
     role,
-  } = req.body;
+  } = req.body || {};
   try {
     if (req.user.role !== "admin" && req.user.id !== parseInt(id)) {
       return res.status(403).json({ error: "Unauthorized" });

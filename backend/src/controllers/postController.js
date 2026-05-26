@@ -20,9 +20,9 @@ const createPost = async (req, res) => {
 const getAllPostsAdmin = async (req, res) => {
   try {
     if (req.user.role !== "admin")
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(403).json({ error: "Access denied" });
     const posts = await pool.query(
-      "SELECT * FROM posts ORDER BY created_at DESC",
+      "SELECT posts.*, users.name, users.avatar_url FROM posts LEFT JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC",
     );
     res.status(200).json(posts.rows);
   } catch (err) {
