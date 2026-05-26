@@ -36,7 +36,6 @@ export default function Sidebar() {
         {isAdmin && (
           <>
             <div style={styles.divider} />
-            <p style={styles.adminLabel}>ADMIN</p>
             <Link to="/users" style={styles.link}>
               Users
             </Link>
@@ -72,7 +71,7 @@ export default function Sidebar() {
 const styles = {
   sidebar: {
     width: "240px",
-    minHeight: "100vh",
+    height: "100vh",
     backgroundColor: "#0A0A0A",
     borderRight: "1px solid #1A1A1A",
     display: "flex",
@@ -81,6 +80,7 @@ const styles = {
     position: "fixed",
     left: 0,
     top: 0,
+    boxSizing: "border-box",
   },
   logo: {
     color: "#2D6BE4",
@@ -89,7 +89,13 @@ const styles = {
     marginBottom: "32px",
     paddingLeft: "8px",
   },
-  nav: { display: "flex", flexDirection: "column", gap: "4px", flex: 1 },
+  nav: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    flex: 1,
+    overflowY: "auto",
+  },
   link: {
     color: "#888",
     textDecoration: "none",
@@ -105,7 +111,12 @@ const styles = {
     paddingLeft: "12px",
     marginBottom: "4px",
   },
-  bottom: { borderTop: "1px solid #1A1A1A", paddingTop: "16px" },
+  bottom: {
+    borderTop: "1px solid #1A1A1A",
+    paddingTop: "16px",
+    marginTop: "auto",
+    flexShrink: 0,
+  },
   userName: { color: "#fff", fontWeight: "bold", marginBottom: "2px" },
   userRole: { color: "#2D6BE4", fontSize: "11px", marginBottom: "12px" },
   logout: {
