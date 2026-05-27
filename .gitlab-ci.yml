@@ -3,6 +3,10 @@ stages:
   - build
   - deploy
 
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
 test:backend:
   stage: test
   image: node:20-alpine
@@ -14,24 +18,34 @@ test:backend:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
     DB_HOST: postgres
-    DB_PORT: 5432
+    DB_PORT: "5432"
     DB_NAME: pibly
     DB_USER: postgres
     DB_PASSWORD: postgres
     JWT_SECRET: test_secret
     REFRESH_SECRET: test_refresh_secret
     STRIPE_SECRET_KEY: sk_test_fake123456789
+    NODE_ENV: test
   before_script:
     - cd backend
     - npm install
   script:
     - npm test -- --forceExit
+  coverage: '/Lines\s*:\s*(\d+\.?\d*)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/coverage/cobertura-coverage.xml
+    when: always
 
 build:backend:dev:
   stage: build
-  image: docker:latest
+  image: docker:24
   services:
-    - docker:dind
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -41,25 +55,13 @@ build:backend:dev:
   only:
     - dev
 
-build:backend:prod:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - cd backend
-    - docker build -f Dockerfile.prod -t $CI_REGISTRY_IMAGE/backend:prod .
-    - docker push $CI_REGISTRY_IMAGE/backend:prod
-  only:
-    - main
-
 build:frontend:dev:
   stage: build
-  image: docker:latest
+  image: docker:24
   services:
-    - docker:dind
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -69,11 +71,29 @@ build:frontend:dev:
   only:
     - dev
 
+build:backend:prod:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - cd backend
+    - docker build -f Dockerfile.prod -t $CI_REGISTRY_IMAGE/backend:prod .
+    - docker push $CI_REGISTRY_IMAGE/backend:prod
+  only:
+    - main
+
 build:frontend:prod:
   stage: build
-  image: docker:latest
+  image: docker:24
   services:
-    - docker:dind
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -85,19 +105,29 @@ build:frontend:prod:
 
 deploy:dev:
   stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
   script:
-    - echo "Deploying to development environment"
+    - echo "Deploying dev environment..."
+    - curl -X POST "$RENDER_DEPLOY_HOOK_DEV" || echo "Deploy hook not set"
   environment:
     name: development
+    url: https://pibly-backend.onrender.com
   only:
     - dev
 
 deploy:prod:
   stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
   script:
-    - echo "Deploying"
+    - echo "Deploying production environment..."
+    - curl -X POST "$RENDER_DEPLOY_HOOK_PROD" || echo "Deploy hook not set"
   environment:
     name: production
+    url: https://pibly-backend.onrender.com
   only:
     - main
   when: manual
