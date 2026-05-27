@@ -10,7 +10,9 @@ export default function SessionScreen({ route, navigation }) {
   const { session, post } = route.params;
   const [duration, setDuration] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
-  const [roomUrl] = useState(`https://meet.jit.si/pibly-session-${session.id}`);
+  const [roomUrl] = useState(
+    `https://meet.jit.si/pibly-session-${session?.id}`,
+  );
 
   useEffect(() => {
     const timer = setInterval(() => setDuration((prev) => prev + 1), 1000);

@@ -24,9 +24,8 @@ export default function PostDetail() {
 
   const joinPost = async () => {
     try {
-      await api.post("/sessions/join", { post_id: parseInt(id) });
-      alert("Joined! Waiting for poster to accept.");
-      navigate("/my-sessions");
+      const res = await api.post("/sessions/join", { post_id: parseInt(id) });
+      navigate("/helper-waiting", { state: { session: res.data, post } });
     } catch (err) {
       alert(err.response?.data?.error || "Failed to join");
     }

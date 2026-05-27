@@ -25,8 +25,11 @@ export default function CreatePost() {
   const createPost = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/posts", { ...form, price: parseFloat(form.price) });
-      navigate("/my-posts");
+      const res = await api.post("/posts", {
+        ...form,
+        price: parseFloat(form.price),
+      });
+      navigate("/poster-waiting", { state: { post: res.data } });
     } catch (err) {
       alert(err.response?.data?.error || "Failed to create post");
     }

@@ -13,8 +13,8 @@ const { authenticate } = require("../middleware/auth");
 
 router.get("/", getAllPosts);
 router.get("/all", authenticate, getAllPostsAdmin);
-router.get("/:id", authenticate, getPost);
 router.get("/me", authenticate, getMyPosts);
+router.get("/:id", authenticate, getPost);
 router.post("/", authenticate, createPost);
 router.put("/:id", authenticate, updatePost);
 router.delete("/:id", authenticate, deletePost);

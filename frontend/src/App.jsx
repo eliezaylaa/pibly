@@ -16,6 +16,9 @@ import MySessions from "./pages/MySessions";
 import MyInvoices from "./pages/MyInvoices";
 import PostDetail from "./pages/PostDetail";
 import CreatePost from "./pages/CreatePost";
+import PosterWaiting from "./pages/PosterWaiting";
+import HelperWaiting from "./pages/HelperWaiting";
+import VideoCall from "./pages/VideoCall";
 
 function App() {
   return (
@@ -146,6 +149,30 @@ function App() {
           element={
             <ProtectedRoute>
               <CreatePost />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/poster-waiting"
+          element={
+            <ProtectedRoute>
+              <PosterWaiting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/helper-waiting"
+          element={
+            <ProtectedRoute>
+              <HelperWaiting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/video-call"
+          element={
+            <ProtectedRoute>
+              <VideoCall />
             </ProtectedRoute>
           }
         />
