@@ -9,9 +9,6 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterFramework": [
-      "./src/tests/setup.js"
-    ],
     "testTimeout": 10000,
     "forceExit": true
   },
