@@ -1,0 +1,13 @@
+stages:
+  - test
+  - build
+  - deploy
+
+test:backend:
+  stage: test
+  image: node:18-alpine
+  before_script:
+    - cd backend
+    - npm install
+  script:
+    - npm test
