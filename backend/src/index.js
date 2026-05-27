@@ -16,7 +16,12 @@ const { setIO } = require("./socket");
 setIO(io);
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://pibly-frontend.onrender.com/"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(
   rateLimit({
