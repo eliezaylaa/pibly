@@ -5,7 +5,15 @@
   "scripts": {
     "start": "nodemon src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "jest"
+    "test": "jest --coverage --forceExit --runInBand"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterFramework": [
+      "./src/tests/setup.js"
+    ],
+    "testTimeout": 10000,
+    "forceExit": true
   },
   "keywords": [],
   "author": "",
@@ -17,6 +25,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
+    "express-validator": "^7.3.2",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
     "nodemon": "^3.1.14",
