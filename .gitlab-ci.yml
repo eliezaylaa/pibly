@@ -17,4 +17,6 @@ build:backend:
   services:
     - docker:dind
   script:
-    - docker build -f backend/Dockerfile -t pibly-backend .
+    - cd backend
+    - docker build -f Dockerfile.dev -t pibly-backend:dev .
+    - docker push pibly-backend:dev
