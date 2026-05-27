@@ -1,0 +1,22 @@
+stages:
+  - test
+  - build
+
+test:backend:
+  stage: test
+  image: node:18-alpine
+  before_script:
+    - cd backend
+    - npm install
+  script:
+    - npm test
+
+build:backend:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd backend
+    - docker build -f Dockerfile.dev -t pibly-backend:dev .
+    - docker push pibly-backend:dev

@@ -58,5 +58,11 @@ CREATE TABLE IF NOT EXISTS invoices (
   post_id INTEGER REFERENCES posts(id) ON DELETE SET NULL,
   poster_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
   helper_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  poster_name VARCHAR(100),
+  helper_name VARCHAR(100),
+  post_title VARCHAR(255),
+  amount DECIMAL(10,2) NOT NULL,
+  platform_fee DECIMAL(10,2) NOT NULL,
+  status VARCHAR(20),
   created_at TIMESTAMP DEFAULT NOW()
 );

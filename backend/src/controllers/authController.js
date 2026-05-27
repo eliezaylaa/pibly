@@ -5,6 +5,16 @@ const validator = require("validator");
 
 const register = async (req, res) => {
   const { email, password, name } = req.body;
+  if (
+    !name ||
+    !email ||
+    !password ||
+    name.trim() === "" ||
+    email.trim() === "" ||
+    password.trim() === ""
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
   try {
     if (!validator.isEmail(email)) {
       return res.status(400).json({ error: "Invalid email format" });
@@ -14,7 +24,7 @@ const register = async (req, res) => {
       [email],
     );
     if (userExists.rows.length > 0) {
-      return res.status(400).json({ error: "Email already exists" });
+      return res.status(400).json({ error: "User already exists" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await pool.query(
@@ -49,6 +59,9 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password || email.trim() === "" || password.trim() === "") {
+    return res.status(400).json({ error: "All fields are required" });
+  }
   try {
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
